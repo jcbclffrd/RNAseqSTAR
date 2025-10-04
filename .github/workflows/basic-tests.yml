@@ -1,0 +1,77 @@
+name: Basic Pipeline Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-docker-build:
+    runs-on: ubuntu-latest
+    name: Test Docker Build and Basic Functionality
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Build Docker image
+      run: |
+        echo "Building Docker image..."
+        docker build -t scte-pipeline:ci-test .
+        
+    - name: Test required tools are installed
+      run: |
+        echo "Testing STAR installation..."
+        docker run --rm scte-pipeline:ci-test STAR --version
+        
+        echo "Testing samtools installation..."
+        docker run --rm scte-pipeline:ci-test samtools --version
+        
+        echo "Testing SRA toolkit installation..."
+        docker run --rm scte-pipeline:ci-test prefetch --version
+        
+        echo "Testing wget installation..."
+        docker run --rm scte-pipeline:ci-test wget --version
+        
+    - name: Test pipeline script exists and is executable
+      run: |
+        echo "Testing pipeline script..."
+        docker run --rm scte-pipeline:ci-test test -x /workspace/scripts/run_full_pipeline.sh
+        
+    - name: Test script syntax
+      run: |
+        echo "Validating script syntax..."
+        docker run --rm scte-pipeline:ci-test bash -n /workspace/scripts/run_full_pipeline.sh
+        
+    - name: Test directory structure
+      run: |
+        echo "Testing container directory structure..."
+        docker run --rm scte-pipeline:ci-test ls -la /workspace/
+        
+  validate-local-scripts:
+    runs-on: ubuntu-latest
+    name: Validate Local Scripts
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Test script permissions
+      run: |
+        echo "Checking script permissions..."
+        ls -la *.sh scripts/*.sh
+        
+    - name: Test script syntax
+      run: |
+        echo "Testing bash syntax..."
+        bash -n docker_build.sh
+        bash -n docker_run_pipeline.sh
+        bash -n scripts/run_full_pipeline.sh
+        
+    - name: Check README exists
+      run: |
+        echo "Checking documentation..."
+        test -f README.md
+        test -s README.md
+        echo "README.md exists and is not empty ✅"
