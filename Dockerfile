@@ -19,10 +19,9 @@ RUN mkdir -p /workspace/data \
 
 WORKDIR /workspace
 
-# Copy pipeline scripts
+# Copy pipeline script
 COPY scripts/run_full_pipeline.sh /workspace/scripts/run_full_pipeline.sh
-COPY scripts/align_only.sh /workspace/scripts/align_only.sh
-RUN chmod +x /workspace/scripts/run_full_pipeline.sh /workspace/scripts/align_only.sh
+RUN chmod +x /workspace/scripts/run_full_pipeline.sh
 
 # Environment variables
 ENV GENOME_DIR=/workspace/genome_index
