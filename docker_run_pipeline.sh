@@ -8,7 +8,7 @@ echo "=========================================="
 echo ""
 
 # Paths on host machine
-HOST_BASE="/Users/jacobclifford/Desktop/scTE/mouse_analysis"
+HOST_BASE="/Users/jacobclifford/Desktop/RNAseqSTAR"
 HOST_DATA="$HOST_BASE/data"
 HOST_REFERENCE="$HOST_BASE/reference"
 HOST_RESULTS="$HOST_BASE/results"
@@ -28,7 +28,6 @@ docker run --rm -it \
     -v "$HOST_REFERENCE:/workspace/reference" \
     -v "$HOST_RESULTS:/workspace/results" \
     -v "$HOST_BASE/GenomeDir:/workspace/genome_index" \
-    --user $(id -u):$(id -g) \
     scte-pipeline:latest \
     /workspace/scripts/run_full_pipeline.sh
 

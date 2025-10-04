@@ -8,6 +8,9 @@ FROM continuumio/miniconda3:latest
 RUN conda install -c bioconda -c conda-forge -y \
     star=2.7.11b \
     samtools \
+    sra-tools \
+    wget \
+    pigz \
     && conda clean -a -y
 
 # Create workspace directories

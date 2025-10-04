@@ -7,7 +7,7 @@ echo "Building scTE Pipeline Docker Image"
 echo "=========================================="
 echo ""
 
-cd /Users/jacobclifford/Desktop/scTE/mouse_analysis
+# cd /Users/jacobclifford/Desktop/scTE/mouse_analysis
 
 # Build the Docker image
 docker build -t scte-pipeline:latest .

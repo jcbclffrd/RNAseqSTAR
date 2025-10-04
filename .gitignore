@@ -11,13 +11,12 @@
 
 # Data directories with large files
 fastq/
-reference/*.fa
-reference/*.gtf
+reference/
 bam/
-results/*.bam
-results/*.bai
+results/
 GenomeDir/
 genome_index/
+data/
 
 # Docker volumes
 docker_workspace/

@@ -74,14 +74,15 @@ The pipeline will:
 
 ## Pipeline Steps Explained
 
-### Step 1: Data Download (if needed)
-- Automatically downloads SRR5068882 if not present in `fastq/`
-- Uses SRA toolkit for efficient download
-- ~6.5GB compressed FASTQ file
+### Step 1: Data Download (automatic)
+- Automatically downloads SRR5068882 using SRA toolkit
+- Converts to FASTQ format (~33GB uncompressed)
+- Skipped if FASTQ already exists in `data/`
 
 ### Step 2: Reference Files (if needed)
 - Downloads mouse genome (GRCm38) from Ensembl
 - Downloads GENCODE vM21 gene annotations
+- **Automatically fixes chromosome naming** (converts "chr1" to "1" format for STAR compatibility)
 - Skipped if files already exist in `reference/`
 
 ### Step 3: STAR Genome Index
@@ -146,11 +147,11 @@ results/
 
 ### Expected Alignment Statistics
 
-For this C1 Fluidigm dataset:
+For this C1 Fluidigm dataset (SRR5068882):
 - **Input reads**: ~135,000,000
-- **Uniquely mapped**: 50-70% (typical for scRNA-seq)
-- **Multi-mapped**: 20-30%
-- **Unmapped**: <10%
+- **Uniquely mapped**: ~86% (excellent for scRNA-seq)
+- **Multi-mapped**: ~12%
+- **Unmapped**: ~3%
 
 ## Next Steps: scTE Quantification
 
