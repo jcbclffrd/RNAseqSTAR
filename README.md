@@ -4,7 +4,7 @@ Docker-based pipeline for STAR alignment and transposable element quantification
 
 ## Overview
 
-This pipeline processes mouse scRNA-seq data (SRR5068882) from C1 Fluidigm platform using STAR alignment, optimized for 52bp single-end reads. The Docker approach bypasses Apple Silicon and conda compatibility issues encountered with native STAR installations.
+This pipeline processes mouse scRNA-seq data (SRR5068882) from C1 Fluidigm platform using STAR alignment and scTE quantification, optimized for 52bp single-end reads. The Docker approach bypasses Apple Silicon and conda compatibility issues encountered with native STAR installations. **scTE is fully integrated and runs automatically** to quantify transposable element expression alongside gene expression.
 
 ## Dataset Information
 
@@ -68,9 +68,11 @@ The pipeline will:
 2. Build STAR genome index with memory-optimized parameters
 3. Align reads using STAR (optimized for 52bp reads)
 4. Index BAM file with samtools
-5. Display alignment statistics
+5. Build scTE index for transposable element annotations
+6. Run scTE quantification on aligned reads
+7. Display alignment and quantification statistics
 
-**Expected Runtime**: 30-90 minutes for full alignment
+**Expected Runtime**: 45-120 minutes for full pipeline (including scTE)
 
 ## Pipeline Steps Explained
 
@@ -111,6 +113,20 @@ The pipeline will:
 - Creates `.bai` index file with samtools
 - Shows alignment statistics and file info
 
+### Step 6: scTE Index Building
+- Downloads RepeatMasker annotations for mouse (mm10) from UCSC
+- Downloads GENCODE gene annotations if needed
+- Builds scTE index for efficient TE quantification
+- Takes 5-15 minutes
+- Skipped if index already exists in `reference/scTE_index/`
+
+### Step 7: scTE Quantification
+- Quantifies both gene and transposable element (TE) expression
+- Configured for C1 Fluidigm data (no cell barcodes in reads, no UMI)
+- Uses multi-threaded processing for speed
+- Outputs results in both CSV and HDF5 (.h5ad) format
+- Takes 15-30 minutes depending on system
+
 ## Memory Optimization Details
 
 This pipeline uses memory-optimized STAR parameters designed for systems with **16GB RAM**:
@@ -142,7 +158,11 @@ results/
 ├── SRR5068882_Aligned.sortedByCoord.out.bam.bai # BAM index
 ├── SRR5068882_Log.final.out                     # Alignment statistics
 ├── SRR5068882_Log.out                           # Detailed log
-└── SRR5068882_Log.progress.out                  # Progress during run
+├── SRR5068882_Log.progress.out                  # Progress during run
+└── scTE_output/                                 # scTE quantification results
+    ├── scTE_results.csv                         # Gene expression matrix (CSV)
+    ├── scTE_results.TE.csv                      # TE expression matrix (CSV)
+    └── scTE_results.h5ad                        # Combined data (HDF5/AnnData)
 ```
 
 ### Expected Alignment Statistics
@@ -153,22 +173,60 @@ For this C1 Fluidigm dataset (SRR5068882):
 - **Multi-mapped**: ~12%
 - **Unmapped**: ~3%
 
-## Next Steps: scTE Quantification
+### scTE Output Files
 
-After alignment completes, run scTE to quantify transposable elements:
+- **scTE_results.csv**: Gene expression counts per cell
+- **scTE_results.TE.csv**: Transposable element expression counts per cell
+- **scTE_results.h5ad**: Combined gene and TE expression in AnnData format (compatible with Scanpy/Seurat)
 
-```bash
-# Navigate to scTE installation
-cd /path/to/scTE
+## Next Steps: Downstream Analysis
 
-# Activate scTE environment
-source .venv/bin/activate
+After the pipeline completes, you can analyze the scTE output using standard single-cell analysis tools:
 
-# Run scTE
-scTE -i /path/to/results/SRR5068882_Aligned.sortedByCoord.out.bam \
-     -o /path/to/results/scTE_output \
-     -x mm10 \
-     -p 8
+### Using Python (Scanpy)
+
+```python
+import scanpy as sc
+
+# Load the scTE results
+adata = sc.read_h5ad('results/scTE_output/scTE_results.h5ad')
+
+# The data includes both genes and TEs
+print(f"Total features: {adata.n_vars}")
+print(f"Total cells: {adata.n_obs}")
+
+# Perform standard scRNA-seq analysis
+sc.pp.filter_cells(adata, min_genes=200)
+sc.pp.filter_genes(adata, min_cells=3)
+sc.pp.normalize_total(adata, target_sum=1e4)
+sc.pp.log1p(adata)
+
+# Identify highly variable features (genes and TEs)
+sc.pp.highly_variable_genes(adata)
+
+# Continue with clustering, UMAP, etc.
+```
+
+### Using R (Seurat)
+
+```r
+library(Seurat)
+library(SeuratDisk)
+
+# Convert h5ad to h5seurat format
+Convert("results/scTE_output/scTE_results.h5ad", dest = "h5seurat", overwrite = TRUE)
+
+# Load into Seurat
+seurat_obj <- LoadH5Seurat("results/scTE_output/scTE_results.h5seurat")
+
+# Standard Seurat workflow
+seurat_obj <- NormalizeData(seurat_obj)
+seurat_obj <- FindVariableFeatures(seurat_obj)
+seurat_obj <- ScaleData(seurat_obj)
+seurat_obj <- RunPCA(seurat_obj)
+seurat_obj <- FindNeighbors(seurat_obj)
+seurat_obj <- FindClusters(seurat_obj)
+seurat_obj <- RunUMAP(seurat_obj, dims = 1:10)
 ```
 
 ## File Structure
@@ -182,9 +240,11 @@ RNAseqSTAR/
 ├── .gitignore                  # Git ignore rules
 ├── scripts/
 │   └── run_full_pipeline.sh   # Main pipeline script
-├── fastq/                      # Input FASTQ files (gitignored)
+├── data/                       # Input FASTQ files (gitignored)
 ├── reference/                  # Reference genome/GTF (gitignored)
-└── results/                    # Output BAM files (gitignored)
+│   └── scTE_index/            # scTE index files (gitignored)
+└── results/                    # Output BAM and scTE files (gitignored)
+    └── scTE_output/           # scTE quantification results
 ```
 
 ## Troubleshooting

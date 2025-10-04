@@ -13,6 +13,9 @@ RUN conda install -c bioconda -c conda-forge -y \
     pigz \
     && conda clean -a -y
 
+# Install scTE for transposable element quantification
+RUN pip install git+https://github.com/JiekaiLab/scTE.git
+
 # Create workspace directories
 RUN mkdir -p /workspace/data \
              /workspace/reference \

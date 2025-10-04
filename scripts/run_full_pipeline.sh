@@ -209,6 +209,60 @@ else
 fi
 
 # ============================================
+# STEP 6: Build scTE index (if needed)
+# ============================================
+echo "=========================================="
+echo "STEP 6: Building scTE index"
+echo "=========================================="
+
+SCTE_INDEX_DIR="$REFERENCE_DIR/scTE_index"
+mkdir -p "$SCTE_INDEX_DIR"
+
+if [ -f "$SCTE_INDEX_DIR/mm10.exclusive.idx.npz" ]; then
+    echo "✓ scTE index already exists"
+else
+    echo "Building scTE index for mm10..."
+    echo "This will download RepeatMasker annotations and build the index..."
+    echo "This takes 5-15 minutes..."
+    
+    cd "$SCTE_INDEX_DIR"
+    scTE_build -g mm10 -o mm10.exclusive
+    
+    echo "✓ scTE index built"
+fi
+
+echo ""
+
+# ============================================
+# STEP 7: Run scTE quantification
+# ============================================
+echo "=========================================="
+echo "STEP 7: Running scTE quantification"
+echo "=========================================="
+
+SCTE_OUTPUT="$RESULTS_DIR/scTE_output"
+mkdir -p "$SCTE_OUTPUT"
+
+echo "Running scTE on C1 Fluidigm data (no cell barcodes, no UMI)..."
+echo "Input BAM: $BAM_FILE"
+echo "Output directory: $SCTE_OUTPUT"
+echo "Using index: $SCTE_INDEX_DIR/mm10.exclusive.idx"
+echo ""
+
+# For C1 Fluidigm data: no cell barcodes in reads, no UMI
+# Use -CB False -UMI False
+scTE -i "$BAM_FILE" \
+     -o "$SCTE_OUTPUT/scTE_results" \
+     -x "$SCTE_INDEX_DIR/mm10.exclusive.idx" \
+     -p "$THREADS" \
+     -CB False \
+     -UMI False \
+     --hdf5 True
+
+echo "✓ scTE quantification complete"
+echo ""
+
+# ============================================
 # PIPELINE COMPLETE
 # ============================================
 echo "=============================================="
@@ -219,7 +273,10 @@ echo "Output files:"
 echo "  BAM: $BAM_FILE"
 echo "  BAI: ${BAM_FILE}.bai"
 echo "  Logs: ${OUTPUT_PREFIX}Log.*.out"
+echo "  scTE results: $SCTE_OUTPUT/"
 echo ""
-echo "Next step: Run scTE quantification"
-echo "  scTE -i $BAM_FILE -o $RESULTS_DIR/scTE_output -x mm10 -CB <cell_barcode_tag>"
+echo "scTE output includes:"
+echo "  - Gene expression matrix"
+echo "  - Transposable element expression matrix"
+echo "  - Combined expression data in .h5ad format (if --hdf5 True)"
 echo ""

@@ -8,6 +8,8 @@
 *.gtf
 *.gtf.gz
 *.sra
+*.h5ad
+*.npz
 
 # Data directories with large files
 fastq/
@@ -17,6 +19,7 @@ results/
 GenomeDir/
 genome_index/
 data/
+scTE_output/
 
 # Docker volumes
 docker_workspace/
