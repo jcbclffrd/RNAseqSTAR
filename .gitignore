@@ -1,0 +1,52 @@
+# Large data files
+*.fastq
+*.fastq.gz
+*.bam
+*.bam.bai
+*.fa
+*.fa.gz
+*.gtf
+*.gtf.gz
+*.sra
+
+# Data directories with large files
+fastq/
+reference/*.fa
+reference/*.gtf
+bam/
+results/*.bam
+results/*.bai
+GenomeDir/
+genome_index/
+
+# Docker volumes
+docker_workspace/
+
+# Temporary files
+*.tmp
+*_STARtmp/
+*.out
+*.tab
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+*.egg-info/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archives
+scripts/archive/
+
+# Keep these small files
+!scripts/*.sh
+!*.md
+!Dockerfile
+!docker_*.sh
+!.gitignore

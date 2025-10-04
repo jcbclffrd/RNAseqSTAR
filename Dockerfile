@@ -1,0 +1,33 @@
+# Ultra-simplified Dockerfile for scTE Pipeline
+# Uses conda to install STAR and samtools (avoids compilation)
+# Includes memory-optimized STAR parameters for systems with 16GB RAM
+
+FROM continuumio/miniconda3:latest
+
+# Install STAR and samtools via conda (pre-built binaries)
+RUN conda install -c bioconda -c conda-forge -y \
+    star=2.7.11b \
+    samtools \
+    && conda clean -a -y
+
+# Create workspace directories
+RUN mkdir -p /workspace/data \
+             /workspace/reference \
+             /workspace/genome_index \
+             /workspace/results \
+             /workspace/scripts
+
+WORKDIR /workspace
+
+# Copy pipeline scripts
+COPY scripts/run_full_pipeline.sh /workspace/scripts/run_full_pipeline.sh
+COPY scripts/align_only.sh /workspace/scripts/align_only.sh
+RUN chmod +x /workspace/scripts/run_full_pipeline.sh /workspace/scripts/align_only.sh
+
+# Environment variables
+ENV GENOME_DIR=/workspace/genome_index
+ENV DATA_DIR=/workspace/data
+ENV RESULTS_DIR=/workspace/results
+ENV REFERENCE_DIR=/workspace/reference
+
+CMD ["/bin/bash"]
