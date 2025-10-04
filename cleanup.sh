@@ -17,11 +17,13 @@ rm -f 07_star_debug.sh
 echo "✓ Removed old test scripts"
 
 echo ""
-echo "=== Removing old log and test files ==="
+echo "=== Removing old log and documentation files ==="
 rm -f star_debug.log
 rm -f test_sequences.fa
 rm -f READMEsra.md
-echo "✓ Removed log and test files"
+rm -f CLAUDE_CODE_INSTRUCTIONS.md
+rm -f MEMORY_OPTIMIZATIONS.md
+echo "✓ Removed old documentation files (consolidated into README.md)"
 
 echo ""
 echo "=== Removing old STAR output from failed attempts ==="
