@@ -11,10 +11,17 @@ Extend the current STAR alignment pipeline to include scTE (single-cell Transpos
 
 ## 🚀 **Proposed Integration**
 
-### Phase 1: Docker Integration
-- [ ] Add scTE to Dockerfile via conda/pip
-- [ ] Test scTE installation in container
-- [ ] Verify scTE compatibility with current environment
+### Phase 1: Docker Integration ✅ COMPLETED
+- [x] Add scTE to Dockerfile via conda/pip
+- [x] Test scTE installation in container  
+- [x] Verify scTE compatibility with current environment
+
+**Completed:** October 4, 2025
+- ✅ Added Python dependencies (pandas, numpy, scipy, pysam) via conda
+- ✅ Installed scTE v1.0 via pip from GitHub repository
+- ✅ Docker build successful (184s build time)
+- ✅ scTE CLI accessible and functional
+- ✅ Ready for Phase 2 implementation
 
 ### Phase 2: Pipeline Extension  
 - [ ] Extend `run_full_pipeline.sh` with scTE step (Step 6)
@@ -42,10 +49,12 @@ Extend the current STAR alignment pipeline to include scTE (single-cell Transpos
 
 ## 🔧 **Technical Requirements**
 
-### scTE Installation Research
-- [ ] Investigate scTE installation methods (conda vs pip vs source)
-- [ ] Check scTE dependencies and compatibility
-- [ ] Determine optimal scTE version for pipeline
+### scTE Installation Research ✅ COMPLETED
+- [x] Investigate scTE installation methods (conda vs pip vs source)
+- [x] Check scTE dependencies and compatibility
+- [x] Determine optimal scTE version for pipeline
+
+**Result:** pip installation from GitHub repository chosen, v1.0 confirmed working
 
 ### Pipeline Architecture  
 - [ ] Design modular scTE integration (optional step)
@@ -72,8 +81,8 @@ After integration, the pipeline should produce:
 ## 🧪 **Testing Strategy**
 
 ### Unit Tests
-- [ ] Docker build with scTE succeeds
-- [ ] scTE CLI accessible and functional
+- [x] Docker build with scTE succeeds
+- [x] scTE CLI accessible and functional
 - [ ] scTE runs on test BAM file
 
 ### Integration Tests  
