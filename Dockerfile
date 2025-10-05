@@ -11,7 +11,14 @@ RUN conda install -c bioconda -c conda-forge -y \
     sra-tools \
     wget \
     pigz \
+    pandas \
+    numpy \
+    scipy \
+    pysam \
     && conda clean -a -y
+
+# Install scTE via pip (not available in conda)
+RUN pip install git+https://github.com/JiekaiLab/scTE.git
 
 # Create workspace directories
 RUN mkdir -p /workspace/data \
